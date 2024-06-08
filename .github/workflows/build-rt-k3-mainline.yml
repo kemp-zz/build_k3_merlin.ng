@@ -6,8 +6,8 @@ on:
   push:
     tags:
       - 'v*'
-    branches: 
-      - 386.12_x
+#    branches: 
+#      - 386.12_x
 #  schedule:
 #    - cron: '0 8 * * 5'
   watch:
