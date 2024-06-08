@@ -4,15 +4,8 @@ on:
   release:
     types: [published]
   push:
-    tags:
-      - 'v*'
-#    branches: 
-#      - 386.12_x
-#  schedule:
-#    - cron: '0 8 * * 5'
-  watch:
-    types: [started]
-    
+    branches:
+      - 386.12_x
 env:
   ET0MACADDR: "00:11:22:33:44:55"    
   MACADDR1_24G: "00:11:22:33:44:66"
