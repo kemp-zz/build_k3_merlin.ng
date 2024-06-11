@@ -79,24 +79,21 @@ jobs:
        
     - name: Link Directory
       run: |       
-        sudo ln -s $(pwd)/am-toolchains/brcm-arm-hnd /opt/toolchains
-        #sudo ln -s $(pwd)/asuswrt-merlin/tools/brcm /opt/brcm
-        sudo ln -s $(pwd)/am-toolchains/brcm-arm-sdk/hndtools-arm-linux-2.6.36-uclibc-4.5.3 /opt/brcm-arm
-        sudo ln -sf bash /bin/sh
-        echo "export LD_LIBRARY_PATH=$LD_LIBRARY:/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib" >> ~/.profile
-        echo "export TOOLCHAIN_BASE=/opt/toolchains" >> ~/.profile
-        echo "PATH=\$PATH:/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin" >> ~/.profile
-        echo "PATH=\$PATH:/opt/toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin" >> ~/.profile  
-        
-        #sudo ln -s $(pwd)/asuswrt-merlin /media/asuswrt/asuswrt-merlin
-        sudo ln -s $(pwd)/asuswrt-merlin.ng /media/asuswrt/asuswrt-merlin.ng       
-        
-        cd /media/asuswrt/asuswrt-merlin.ng
-        git checkout mainline    
-        echo "::set-env name=MERLIN_VERSION::$(git show-ref --heads -s)"
-        echo "::set-env name=MERLIN_TAG::$(git show-ref --heads --hash=8)"
-        echo "::set-env name=BUILD_DATE::$(date +%Y%m%d%H%M)"
-        
+       sudo ln -s $(pwd)/am-toolchains/brcm-arm-hnd /opt/toolchains
+       sudo ln -s $(pwd)/am-toolchains/brcm-arm-sdk/hndtools-arm-linux-2.6.36-uclibc-4.5.3 /opt/brcm-arm
+       sudo ln -sf bash /bin/sh
+       echo "LD_LIBRARY_PATH=/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+       echo "TOOLCHAIN_BASE=/opt/toolchains" >> $GITHUB_ENV
+       echo "PATH=/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$PATH" >> $GITHUB_ENV
+       echo "PATH=/opt/toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$PATH" >> $GITHUB_ENV
+    
+       sudo ln -s $(pwd)/asuswrt-merlin.ng /media/asuswrt/asuswrt-merlin.ng       
+       cd /media/asuswrt/asuswrt-merlin.ng
+       git checkout mainline    
+       echo "MERLIN_VERSION=$(git show-ref --heads -s)" >> $GITHUB_ENV
+       echo "MERLIN_TAG=$(git show-ref --heads --hash=8)" >> $GITHUB_ENV
+       echo "BUILD_DATE=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+       
     - name: Modify File
       run: |        
         cd  /media/asuswrt/asuswrt-merlin.ng/release/src-rt-7.14.114.x/src/cfe/build/broadcom/bcm947xx/compressed
@@ -107,10 +104,12 @@ jobs:
         echo "replace mac 5g address from $(cat rt-k3_nvram.txt | grep ^2:macaddr) to ${{ env.MACADDR2_5G }}"
         sed -i 's/^\(2:macaddr=\).*/\1${{ env.MACADDR2_5G }}/g' rt-k3_nvram.txt
         
+ 
+
     - name: Build Firmware
       run: |
-        #export PATH=$PATH:/opt/brcm/hndtools-mipsel-linux/bin:/opt/brcm/hndtools-mipsel-uclibc/bin:
-        export PATH=$PATH:/opt/brcm-arm/bin
+       export PATH=$PATH:/opt/brcm-arm/bin:$TOOLCHAIN_BASE/brcm-arm-hnd
+       # Other build commands ...
 
         cd  /media/asuswrt/asuswrt-merlin.ng/release/src-rt
         echo "add tag to version"
