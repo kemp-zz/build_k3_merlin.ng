@@ -82,17 +82,19 @@ jobs:
        sudo ln -s $(pwd)/am-toolchains/brcm-arm-hnd /opt/toolchains
        sudo ln -s $(pwd)/am-toolchains/brcm-arm-sdk/hndtools-arm-linux-2.6.36-uclibc-4.5.3 /opt/brcm-arm
        sudo ln -sf bash /bin/sh
-       echo "LD_LIBRARY_PATH=/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+       # Simplify the PATH construction by appending everything at once
+       echo "PATH=$(pwd)/am-toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$(pwd)/am-toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$PATH" >> $GITHUB_ENV
+       # Since we are already appending to PATH just above, set TOOLCHAIN_BASE and LD_LIBRARY_PATH only
        echo "TOOLCHAIN_BASE=/opt/toolchains" >> $GITHUB_ENV
-       echo "PATH=/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$PATH" >> $GITHUB_ENV
-       echo "PATH=/opt/toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$PATH" >> $GITHUB_ENV
-       sudo ln -s $(pwd)/asuswrt-merlin.ng /media/asuswrt/asuswrt-merlin.ng       
+       echo "LD_LIBRARY_PATH=/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+       sudo ln -s $(pwd)/asuswrt-merlin.ng /media/asuswrt/asuswrt-merlin.ng
        cd /media/asuswrt/asuswrt-merlin.ng
        git checkout mainline    
-       echo "MERLIN_VERSION=$(git show-ref --heads -s)" >> $GITHUB_ENV
+       # Ensure that the git commands extract the expected information for version tags
+       echo "MERLIN_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
        echo "MERLIN_TAG=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
        echo "BUILD_DATE=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-       
+
     - name: Modify File
       run: |        
         cd  /media/asuswrt/asuswrt-merlin.ng/release/src-rt-7.14.114.x/src/cfe/build/broadcom/bcm947xx/compressed
