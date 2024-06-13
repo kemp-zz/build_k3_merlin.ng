@@ -83,9 +83,10 @@ jobs:
        sudo ln -s $(pwd)/am-toolchains/brcm-arm-hnd /opt/toolchains
        sudo ln -s $(pwd)/am-toolchains/brcm-arm-sdk/hndtools-arm-linux-2.6.36-uclibc-4.5.3 /opt/brcm-arm
        sudo ln -sf bash /bin/sh
-       echo "PATH=$(pwd)/am-toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$(pwd)/am-toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr
-
-       -sudo ln -s $(pwd)/asuswrt-merlin.ng /media/asuswrt/asuswrt-merlin.ng
+       echo "PATH=$(pwd)/am-toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$(pwd)/am-toolchains/crosstools-aarch64-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/bin:$PATH" >> $GITHUB_ENV
+       echo "TOOLCHAIN_BASE=/opt/toolchains" >> $GITHUB_ENV
+       echo "LD_LIBRARY_PATH=/opt/toolchains/crosstools-arm-gcc-5.3-linux-4.1-glibc-2.22-binutils-2.25/usr/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+       sudo ln -s $(pwd)/asuswrt-merlin.ng /media/asuswrt/asuswrt-merlin.ng
        cd /media/asuswrt/asuswrt-merlin.ng
        git checkout mainline
        {
@@ -94,16 +95,15 @@ jobs:
          echo "BUILD_DATE=$(date +%Y%m%d%H%M)"
        } >> $GITHUB_ENV
 
-    - name: Modify File   
+    - name: Modify File
       run: |
-       cd /media/asuswrt/asuswrt-merlin.ng/release/src-rt-7.14.114.x/src/cfe/build/broadcom/bcm947xx/compressed
-       echo "replace mac address from $(grep ^et0macaddr rt-k3_nvram.txt) to ${{ env.ET0MACADDR }}"
-       sed -i 's/^\(et0macaddr=\).*/\1${{ env.ET0MACADDR }}/g' rt-k3_nvram.txt
-       echo "replace mac 2.4g address from $(grep ^1:macaddr rt-k3_nvram.txt) to ${{ env.MACADDR1_24G }}"
-       sed -i 's/^\(1:macaddr=\).*/\1${{ env.MACADDR1_24G }}/g' rt-k3_nvram.txt
-       echo "replace mac 5g address from $(grep ^2:macaddr rt-k3_nvram.txt) to ${{ env.MACADDR2_5G }}"
-       sed -i 's/^\(2:macaddr=\).*/\1${{ env.MACADDR2_5G }}/g' rt-k3_nvram.txt
- 
+         cd /media/asuswrt/asuswrt-merlin.ng/release/src-rt-7.14.114.x/src/cfe/build/broadcom/bcm947xx/compressed
+         echo "replace mac address from $(grep ^et0macaddr rt-k3_nvram.txt) to ${{ env.ET0MACADDR }}"
+         sed -i 's/^\(et0macaddr=\).*/\1${{ env.ET0MACADDR }}/g' rt-k3_nvram.txt
+         echo "replace mac 2.4g address from $(grep ^1:macaddr rt-k3_nvram.txt) to ${{ env.MACADDR1_24G }}"
+         sed -i 's/^\(1:macaddr=\).*/\1${{ env.MACADDR1_24G }}/g' rt-k3_nvram.txt
+         echo "replace mac 5g address from $(grep ^2:macaddr rt-k3_nvram.txt) to ${{ env.MACADDR2_5G }}"
+         sed -i 's/^\(2:macaddr=\).*/\1${{ env.MACADDR2_5G }}/g' rt-k3_nvram.txt
 
     - name: Build Firmware
       run: |
